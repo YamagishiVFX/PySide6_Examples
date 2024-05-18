@@ -23,9 +23,13 @@ Blog:[VFXのためのPySideまとめ](https://yamagishi-2bit.blogspot.com/2021/0
 * PySide6 (Qt 6.6.3.1)
 
 ## Release Note:
+2024/05/10
+* New
+  * QFileSystemModel
+  
 2024/05/01
 * New
-  * Copy form PySide6 Examples
+  * Copy from PySide2 Examples
 
 
 ## Installation PySide6 (Windows):
