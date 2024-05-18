@@ -1,6 +1,15 @@
+""" QFontComboBox Examples
+
+* Coding : Python 3.10.11 & PySide6
+* Coding by : 2024-05-01 Tatsuya Yamagishi
+"""
+
+# =======================================#
+# Import Modules
+# =======================================#
 import sys
 
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 
 class MyDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
@@ -25,5 +34,5 @@ class MyDialog(QtWidgets.QDialog):
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     view = MyDialog()
-    result = view.exec_()
+    result = view.exec()
     print(result)

@@ -4,6 +4,7 @@
 * Created : 2024-05-01 Tatsuya YAMAGISHI
 * Coding : Python 3.10.11 & PySide2
 """
+
 NAME = 'Font Preview'
 VERSION = 'v1.0.0'
 
@@ -115,6 +116,7 @@ class FontPreviewQt(QtWidgets.QWidget):
     def setFont(self, font):
         font = QtGui.QFont(font)
         self._font.setCurrentFont(font)
+
 
 class View(QtWidgets.QDialog):
     def __init__(self, logger, parent=None):
