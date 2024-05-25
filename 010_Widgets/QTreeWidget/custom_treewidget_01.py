@@ -28,15 +28,16 @@ ITEMS = [
 ]
 
 
-
 class MyTreeWidgetItem(QTreeWidgetItem):
     def __init__(self, value: dict, parent=None):
         super().__init__(parent)
         self._value = value
         self.refresh_ui()
 
+
     def get_value(self) -> dict:
         return self._value
+
 
     def refresh_ui(self):
         """ 表示を更新 """
@@ -132,15 +133,20 @@ class MyTreeWidget(QTreeWidget):
 
     
 
-    def get_subtree_items(self, treewidget_item: QTreeWidgetItem):
+    def get_subtree_items(self, tree_widget_item: QTreeWidgetItem):
         """ TreeWidgetItem のサブノードを全て取得 """
         _items = []
-        _items.append(treewidget_item)
+        _items.append(tree_widget_item)
 
-        for _i in range(treewidget_item.childCount()):
-            _items.extend(self.get_subtree_items(treewidget_item.child(_i)))
+        for _i in range(tree_widget_item.childCount()):
+            _items.extend(self.get_subtree_items(tree_widget_item.child(_i)))
         
         return _items
+    
+
+    def get_values(self) -> list[dict]:
+        """ 全値をリストで取得 """
+        return [_item.get_value() for _item in self.get_all_items()]
 
 
     def set_headers(self, headers: dict):
