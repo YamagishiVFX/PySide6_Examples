@@ -54,6 +54,8 @@ class MyTreeWidget(QtWidgets.QTreeWidget):
         menu.addAction(action)
 
         menu.exec_(self.mapToGlobal(point))
+
+        
     #--------------------------#
     # Get / Set
     #--------------------------#

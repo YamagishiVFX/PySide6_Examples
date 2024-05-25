@@ -144,6 +144,7 @@ class MyTreeWidget(QtWidgets.QWidget):
             print(widget)
             print(widget.get_data())
 
+
 app = QtWidgets.QApplication([])
 view = MyTreeWidget()
 view.set_data(DATA)
