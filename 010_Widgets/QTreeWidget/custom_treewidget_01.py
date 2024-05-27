@@ -2,31 +2,58 @@
 
 * QTreeWidget をカスタマイズして使いやすくしてみる。
 
-Version:
-    * Created : v1.0.0 2024-05-26 Tatsuya YAMAGISHI
-    * Coding : Python 3.10.11 & PySide2
-    * Author : Tatsuya Yamagishi
-    * URL : https://github.com/YamagishiVFX/PySide6_Examples
+Info:
+    * Updated : 2024-05-27 Tatsuya YAMAGISHI
+    * Created : 2024-05-26 Tatsuya YAMAGISHI
+    * Coding : Python 3.10.11 & PySide6
+    * URL : https://github.com/YamagishiVFX/PySide6_Examples/tree/main/010_Widgets/QTreeWidget
 """
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QAbstractItemView, QApplication, QTreeWidget, QTreeWidgetItem
 
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtWidgets import (
+        QAbstractItemView,
+        QApplication,
+        QStyledItemDelegate,
+        QTreeWidget,
+        QTreeWidgetItem,
+)
 
+# ---------------------------
+# Settings
+# ---------------------------
 HEADERS = {
     'name': 150,
     'age': 50,
     'category': 50,
+    'description': 150,
 }
+ITEM_HEIGHT = 50
+NAME = 'Custom QTreeWidget'
+WINDOW_SIZE = (600, 400)
+
 
 ITEMS = [
-    {'name': 'Yamada', 'age': 20, 'category': 'A01'},
-    {'name': 'Tanaka', 'age': 24, 'category': 'A01'},
-    {'name': 'Akimoto', 'age': 24, 'category': 'A02'},
-    {'name': 'Yoshizawa', 'age': 35, 'category': 'A03'},
-    {'name': 'Yamagishi', 'age': 28, 'category': 'B01'},
-    {'name': 'Sakamoto', 'age': 32, 'category': 'B02'},
+    {'name': 'Yamada', 'age': 20, 'category': 'A01', 'description': '今夜が山田'},
+    {'name': 'Misawa', 'age': 24, 'category': 'A01', 'description': 'つらい\n実質1時間しか寝ていない'},
+    {'name': 'Akimoto', 'age': 24, 'category': 'A02', 'description': 'Hogehoge\nHogehoge\nHogehoge\nHogehoge'},
+    {'name': 'Yoshizawa', 'age': 35, 'category': 'A03', 'description': 'Hogehoge\nHogehoge\nHogehoge\nHogehoge'},
+    {'name': 'Yamagishi', 'age': 28, 'category': 'B01', 'description': '勤務態度を注意したところ3日前から連絡が取れなくなった'},
+    {'name': 'Sakamoto', 'age': 32, 'category': 'B02', 'description': '日本の夜明けは近いぜよ？'},
 ]
 
+# ---------------------------
+# Class
+# ---------------------------
+class FixedHeightDelegate(QStyledItemDelegate):
+    def __init__(self, height: int, parent=None):
+        super().__init__(parent)
+        self._fixed_height = height
+
+
+    def sizeHint(self, option, index):
+        _size = super().sizeHint(option, index)
+        return QSize(_size.width(), self._fixed_height)
+    
 
 class MyTreeWidgetItem(QTreeWidgetItem):
     def __init__(self, value: dict, parent=None):
@@ -36,6 +63,7 @@ class MyTreeWidgetItem(QTreeWidgetItem):
 
 
     def get_value(self) -> dict:
+        """ 値を取得 """
         return self._value
 
 
@@ -44,6 +72,7 @@ class MyTreeWidgetItem(QTreeWidgetItem):
         for _key, _value in self._value.items():
             _index = self.treeWidget().get_header_index(_key)
             self.setText(_index, str(_value))
+
 
 
 class MyTreeWidget(QTreeWidget):
@@ -66,12 +95,15 @@ class MyTreeWidget(QTreeWidget):
         >>>     QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection)
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, items=None, parent=None):
         super().__init__(parent)
 
         self._headers = None
         self.set_headers(HEADERS)
         self._init_settings()
+
+        if items:
+            self.add_items(items)
 
 
     def _init_settings(self):
@@ -83,8 +115,10 @@ class MyTreeWidget(QTreeWidget):
         self.setSelectionMode(
                 QAbstractItemView.SelectionMode.ExtendedSelection)
         
-        self.setWindowTitle('Custom QTreeWidget')
-        self.resize(400, 200)
+        self.set_item_height(ITEM_HEIGHT)
+        
+        self.setWindowTitle(NAME)
+        self.resize(*WINDOW_SIZE)
         
 
     def add_items(self, items: list[dict]):
@@ -96,8 +130,11 @@ class MyTreeWidget(QTreeWidget):
             _tree_widget_item.setText(0, item.get('name'))
 
 
-    def get_all_items(self) -> list:   
-        """ 全アイテムを取得 """
+    def get_all_items(self) -> list[QTreeWidgetItem]:
+        """ 全アイテムを取得 
+        
+        * self.get_subtree_itemsを再起処理で全アイテム収集
+        """
     
         _all_items = []
         for _i in range(self.topLevelItemCount()):
@@ -114,7 +151,7 @@ class MyTreeWidget(QTreeWidget):
             name(str): ヘッダー名
 
         Returns:
-            int: ヘッダーの基数
+            int: ヘッダー(column)の基数
 
         """
 
@@ -129,11 +166,11 @@ class MyTreeWidget(QTreeWidget):
 
         for _item in _items:
             if _item.text(index) == name:
-                return _items
+                return _item
 
     
 
-    def get_subtree_items(self, tree_widget_item: QTreeWidgetItem):
+    def get_subtree_items(self, tree_widget_item: QTreeWidgetItem) -> list[QTreeWidgetItem]:
         """ TreeWidgetItem のサブノードを全て取得 """
         _items = []
         _items.append(tree_widget_item)
@@ -144,10 +181,25 @@ class MyTreeWidget(QTreeWidget):
         return _items
     
 
-    def get_values(self) -> list[dict]:
-        """ 全値をリストで取得 """
-        return [_item.get_value() for _item in self.get_all_items()]
+    def get_top_item(self, index: int, name: str):
+        """ トップレベルのアイテムを名前で取得 """
+        _num = self.topLevelItemCount()
+        _result = None
 
+        if _num:
+            for i in range(_num):
+                _item = self.topLevelItem(i)
+                if _item.text(index) == name:
+                    _result = _item
+                    break
+        
+        return _result
+
+
+    def get_values(self) -> list[dict]:
+        """ 全アイテムの値をリストで取得 """
+        return [_item.get_value() for _item in self.get_all_items()]
+		     
 
     def set_headers(self, headers: dict):
         """ 辞書型でヘッダーを設定
@@ -160,14 +212,22 @@ class MyTreeWidget(QTreeWidget):
         self.setColumnCount(len(headers))
         self.setHeaderLabels(headers)
 
-        for _i, _key in enumerate(headers):
-            self.header().resizeSection(_i, headers.get(_key)) 
+        for _index, _key in enumerate(headers):
+            self.header().resizeSection(_index, headers.get(_key)) 
 
+
+    def set_item_height(self, value: int):
+        """ TreeWidgetItemの高さを固定
+        
+        Args:
+            value(int): Itemの高さ
+        """
+        _delegate = FixedHeightDelegate(value)
+        self.setItemDelegate(_delegate)
 
 
 if __name__ == '__main__':
     app = QApplication()
-    view = MyTreeWidget()
-    view.add_items(ITEMS)
+    view = MyTreeWidget(items=ITEMS)
     view.show()
     app.exec_()
